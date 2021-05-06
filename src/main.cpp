@@ -6,6 +6,7 @@
 
 int main()
 {
+    using namespace amrnet;
     std::vector<std::pair<DMS, WANAddr>> samples{ 
         { {{ 88, 56, 47, 451, false}, {  2, 33, 30, 388, true }, 0},    { 0xFE, 0x80, 0x70, 0x0e, 0x8E, 0x00} },
         { {{ 88, 56, 47, 451, false}, { 10, 42, 37,  68, true }, 0},    { 0xFE, 0x80, 0x70, 0x3c, 0xee, 0x00} },
@@ -21,7 +22,7 @@ int main()
     
     for (const auto [coord, addr] : samples) {
         std::cout << addr  << '\t' << coord << "\t( " 
-            << std::setprecision(9) << coord.getLat().asDecimal() << ", " << coord.getLong().asDecimal() << ")\n";
+            << std::setprecision(9) << coord.getLat().toDouble() << ", " << coord.getLong().toDouble() << ")\n";
         const auto calc = coord.asWANAddr();
         if (calc != addr) 
             std::cout << "\tCalculated " << calc << '\n';

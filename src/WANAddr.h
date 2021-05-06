@@ -3,6 +3,7 @@
 #include <iostream>
 #include <array>
 
+namespace amrnet {
 class DMS;
 class Coord;
 
@@ -44,7 +45,7 @@ public:
     Coord(double a);
 
     friend std::ostream& operator<<(std::ostream& out, const Coord& coord);
-    double asDecimal() const { return a; } 
+    double toDouble() const { return a; } 
     double operator()(double) const { return a; }
     // these only have 21 significant bits, 
     // so any difference less than that is essentially zero
@@ -52,10 +53,6 @@ public:
 private:
     double a;
 };
-
-inline bool operator==(const Coord& lhs, const Coord& rhs) { 
-    return (lhs.asDecimal() - rhs.asDecimal()) < Coord::epsilon;
-}
 
 class DMS {
 public:
@@ -74,11 +71,19 @@ private:
     uint8_t color;
 };
 
+inline bool operator==(const Coord& lhs, const Coord& rhs) { 
+    return (lhs.toDouble() - rhs.toDouble()) < Coord::epsilon;
+}
+
 inline bool operator==(const DMS& lhs, const DMS& rhs){ 
     return lhs.latitude == rhs.latitude 
         && lhs.longitude == rhs.longitude
         && lhs.color == rhs.color;
 }
-inline bool operator!=(const DMS& lhs, const DMS& rhs){return !operator==(lhs,rhs);}
+
+inline bool operator!=(const DMS& lhs, const DMS& rhs){
+    return !operator==(lhs,rhs);
+}
+}
 
 #endif // WANADDR_H

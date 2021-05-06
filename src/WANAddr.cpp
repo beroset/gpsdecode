@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <cmath>
 
+namespace amrnet {
 Coord::Coord(uint8_t degrees, uint8_t minutes, uint8_t seconds, uint16_t milliseconds, bool NE)
     : a{(NE ? 1.0 : -1.0) * (
     (milliseconds / 3600000.0) +
@@ -16,7 +17,7 @@ Coord::Coord(double a)
 {}
 
 std::ostream& operator<<(std::ostream& out, const Coord& dms) {
-    double a = dms.asDecimal();
+    double a = dms.toDouble();
     bool NE{!(a < 0)};
     if (!NE) {
         a = std::abs(a);
@@ -82,26 +83,26 @@ DMS::DMS(Coord a, Coord b, uint8_t color)
 
 WANAddr DMS::asWANAddr() const {
     WANAddr addr{0, 0, 0, 0, 0, static_cast<uint8_t>(color & colormask)};
-    unsigned enc_lat = ((latitude.asDecimal() < 0 ? 0.0 : 90.0) - latitude.asDecimal()) * anglefactor;
-    unsigned enc_long = ((longitude.asDecimal() < 0 ? 180.0 : 0.0) + longitude.asDecimal()) * anglefactor;
+    uint32_t enc_lat = ((latitude.toDouble() < 0 ? 0.0 : 90.0) - latitude.toDouble()) * anglefactor;
+    uint32_t enc_long = ((longitude.toDouble() < 0 ? 180.0 : 0.0) + longitude.toDouble()) * anglefactor;
     addr[5] |= static_cast<uint8_t>((enc_long << 5) & 0xff);  // insert low three bits
     addr[4] |= static_cast<uint8_t>((enc_long >> 3) & 0xff);  // next 8 bits
     addr[3] |= static_cast<uint8_t>((enc_long >> 11) & 0xff);  // next 8 bits
     addr[2] |= static_cast<uint8_t>((enc_long >> 19) & 0xff);  // next 8 bits
-    if (longitude.asDecimal() < 0) 
+    if (longitude.toDouble() < 0) 
         addr[2] |= 0x4;
     addr[2] |= static_cast<uint8_t>((enc_lat << 3) & 0xff);  // insert low 5 bits
     addr[1] |= static_cast<uint8_t>((enc_lat >> 5) & 0xff);  // insert next 8 bits
     addr[0] |= static_cast<uint8_t>((enc_lat >> 13) & 0xff);  // insert next 8 bits
-    if (latitude.asDecimal() < 0) 
+    if (latitude.toDouble() < 0) 
         addr[0] |= 0x80;
 
     return addr;
 }
 
 std::ostream& operator<<(std::ostream& out, const DMS& dms) {
-    return out << dms.latitude << (dms.latitude.asDecimal() >= 0 ? 'N' : 'S')
-                << ", " << dms.longitude << (dms.longitude.asDecimal() >= 0 ? 'E' : 'W')
+    return out << dms.latitude << (dms.latitude.toDouble() >= 0 ? 'N' : 'S')
+                << ", " << dms.longitude << (dms.longitude.toDouble() >= 0 ? 'E' : 'W')
                 << " C " << static_cast<unsigned>(dms.color);
 }
 
@@ -114,4 +115,5 @@ std::ostream& operator<<(std::ostream& out, const WANAddr& addr) {
     }
     out.setf(savedflags);
     return out;
+}
 }
