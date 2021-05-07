@@ -1,7 +1,9 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.16)
 
 # Add API Reference generation
-find_package(Doxygen)
+find_package(Doxygen 1.8.16)
+set(PROJECT_BRIEF "AMR WAN to latitude/longitude converter library")
+set(MD_SOURCES 01_intro.md 02_building.md 03_using.md)
 if(DOXYGEN_FOUND)
     configure_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/doxygen.conf.in"
@@ -14,6 +16,7 @@ if(DOXYGEN_FOUND)
         "${CMAKE_CURRENT_BINARY_DIR}/doxygen.conf"
         OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/html/index.html"
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+        DEPENDS "${MD_SOURCES}"
         COMMENT "Generating code documentation..." VERBATIM
     )
     add_custom_target(
