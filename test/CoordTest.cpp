@@ -14,7 +14,7 @@ TEST(CoordTest, createCoord) {
 }
 
 TEST(CoordTest, CompareGTEpsilon) {
-    // minimum discernable difference is about 0.0015 arcseconds
+    // minimum discernable difference is about 0.0017 arcseconds
     // the distance below is detectable
     Coord antarctica1{88, 56, 47, 450, false};
     Coord antarctica2{88, 56, 47, 452, false};
@@ -22,7 +22,7 @@ TEST(CoordTest, CompareGTEpsilon) {
 }
 
 TEST(CoordTest, CompareLTEpsilon) {
-    // minimum discernable difference is about 0.0015 arcseconds
+    // minimum discernable difference is about 0.0017 arcseconds
     // the distance below is NOT detectable
     Coord antarctica1{88, 56, 47, 451, false};
     Coord antarctica2{88, 56, 47, 452, false};
@@ -55,7 +55,7 @@ TEST(CoordTest, getDMSFromWANAddr) {
 TEST(CoordTest, getWANAddrFromDMS) {
     WANAddr addr{ 0xFE, 0x80, 0x70, 0x0e, 0x8E, 0x05};
     DMS dms{-88.9465142, 2.55844111, 5};
-    ASSERT_EQ(dms.asWANAddr(), addr);
+    ASSERT_EQ(dms.toWANAddr(), addr);
 }
 
 TEST(CoordTest, printWANAddr) {
