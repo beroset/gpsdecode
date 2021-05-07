@@ -18,7 +18,7 @@ Under Linux, you can build and link these with gcc using the following command:
 
 `g++ -std=c++17 main.cpp -L. -lCoord -o example`
 
-Because the header file uses C++17 constructs, you must specify `-std=c++17` (or later, such as -std=c++20`) on the command line to let the compiler know.  The file you're compiling is `main.cpp` which comes next.  We tell `g++` to look in the current directory for libraries to link (`-L.`) and specify that we wish to link with the `Coord` library `-lCoord` (note that the compiler assumes every library name begins with `lib` so it will look for either `libCoord.a` or `libCoord.so` which would be a dynamically linked version).  Finally we let it know that the output file should be named `example` (`-o example`).  
+Because the header file uses C++17 constructs, you must specify `-std=c++17` (or later, such as `-std=c++20`) on the command line to let the compiler know.  The file you're compiling is `main.cpp` which comes next.  We tell `g++` to look in the current directory for libraries to link (`-L.`) and specify that we wish to link with the `Coord` library `-lCoord` (note that the compiler assumes every library name begins with `lib` so it will look for either `libCoord.a` or `libCoord.so` which would be a dynamically linked version).  Finally we let it know that the output file should be named `example` (`-o example`).  
 
 This will create a new file named `example` which you can run as `./example`.  It does nothing more than print a few coordinates and the output should match the [documented output](@ref mainpage). 
 
