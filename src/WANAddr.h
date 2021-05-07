@@ -14,7 +14,7 @@ class Coord {
 public:
     constexpr Coord(uint8_t degrees, uint8_t minutes, uint8_t seconds, uint16_t milliseconds, bool NE)
         : a{(NE ? 1.0 : -1.0) * (
-        (milliseconds / 3600000.0) +
+        (milliseconds / 3600'000.0) +
         (seconds / 3600.0) + 
         (minutes / 60.0) + 
         degrees
@@ -113,7 +113,7 @@ public:
         , longitude{addr.getLong()}
         , color{addr.getColor()}
     {}
-    constexpr WANAddr asWANAddr() const {
+    constexpr WANAddr toWANAddr() const {
         WANAddr addr{0, 0, 0, 0, 0, static_cast<uint8_t>(color & WANAddr::colormask)};
         uint32_t enc_lat = ((latitude.toFloat() < 0 ? 0.0 : 90.0) - latitude.toFloat()) * anglefactor;
         uint32_t enc_long = ((longitude.toFloat() < 0 ? 180.0 : 0.0) + longitude.toFloat()) * anglefactor;
