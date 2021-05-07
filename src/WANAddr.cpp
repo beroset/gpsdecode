@@ -4,6 +4,7 @@
 
 namespace amrnet {
 
+inline namespace version_1 {
 std::ostream& operator<<(std::ostream& out, const Coord& coord) {
     myfloat a = coord.toFloat();
     bool NE{!(a < 0)};
@@ -26,9 +27,9 @@ std::ostream& operator<<(std::ostream& out, const Coord& coord) {
 }
 
 std::ostream& operator<<(std::ostream& out, const DMS& dms) {
-    return out << dms.latitude << (dms.latitude.toFloat() >= 0 ? 'N' : 'S')
-                << ", " << dms.longitude << (dms.longitude.toFloat() >= 0 ? 'E' : 'W')
-                << " C " << static_cast<unsigned>(dms.color);
+    return out << dms.getLat() << (dms.getLat().toFloat() >= 0 ? 'N' : 'S')
+                << ", " << dms.getLong() << (dms.getLong().toFloat() >= 0 ? 'E' : 'W')
+                << " C " << static_cast<unsigned>(dms.getColor());
 }
 
 std::ostream& operator<<(std::ostream& out, const WANAddr& addr) {
@@ -41,4 +42,6 @@ std::ostream& operator<<(std::ostream& out, const WANAddr& addr) {
     out.setf(savedflags);
     return out;
 }
-}
+
+} // version_1
+} // amrnet

@@ -3,8 +3,9 @@ project(gpsdecode VERSION 1.0.0 LANGUAGES CXX)
 
 # options off-by-default that you can enable
 option(BUILD_DOCS "Build the documentation" OFF)
-
 option(BUILD_TESTING "Build test suite" OFF)
+
+
 if (BUILD_DOCS)
     add_subdirectory(doc)
 endif (BUILD_DOCS)

@@ -2,8 +2,11 @@
 #define WANADDR_H
 #include <iostream>
 #include <array>
+#include <cmath>
 
 namespace amrnet {
+
+inline namespace version_1 {
 
 using myfloat = double;
 
@@ -22,7 +25,7 @@ public:
     friend std::ostream& operator<<(std::ostream& out, const Coord& coord);
     constexpr myfloat toFloat() const { return a; } 
     constexpr myfloat operator()(myfloat) const { return a; }
-    // these only have 21 significant bits, 
+    // these only have a maximum of 21 significant bits, 
     // so any difference less than that is essentially zero
     static constexpr myfloat epsilon{1.0 / 0x20'0000};
 private:
@@ -94,7 +97,7 @@ struct WANAddr : public std::array<uint8_t, 6> {
         mylat &= (mask - 1);
         return {mylat, South};
     }
-    static constexpr uint8_t colormask = 0x1fu;
+    static constexpr uint8_t colormask = 0x1f;
     static constexpr myfloat invanglefactor{-180.0 / 0x20'0000};
 };
 
@@ -132,6 +135,7 @@ public:
     friend constexpr bool operator==(const DMS& lhs, const DMS& rhs);
     constexpr Coord getLat() const { return latitude; }
     constexpr Coord getLong() const { return longitude; }
+    constexpr uint8_t getColor() const { return color; }
 private:
     static constexpr myfloat anglefactor{0x20'0001 / 180.0};
 
@@ -141,15 +145,25 @@ private:
 };
 
 inline constexpr bool operator==(const Coord& lhs, const Coord& rhs) { 
-    return (lhs.toFloat() - rhs.toFloat()) < Coord::epsilon;
+    return std::abs(lhs.toFloat() - rhs.toFloat()) < Coord::epsilon;
 }
 
-inline constexpr bool operator==(const DMS& lhs, const DMS& rhs){ 
+inline constexpr bool operator==(const DMS& lhs, const DMS& rhs) { 
     return lhs.latitude == rhs.latitude 
         && lhs.longitude == rhs.longitude
         && lhs.color == rhs.color;
 }
 
+// in C++20, these will no longer be necessary to write
+inline constexpr bool operator!=(const DMS& lhs, const DMS& rhs) { 
+    return !(lhs == rhs);
 }
+
+inline constexpr bool operator!=(const Coord& lhs, const Coord& rhs) { 
+    return !(lhs == rhs);
+}
+
+} // version_1
+} // amrnet
 
 #endif // WANADDR_H
