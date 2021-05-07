@@ -24,7 +24,7 @@ int main() {
         const auto calc = coord.asWANAddr();
         if (calc != addr) 
             std::cout << "\tCalculated " << calc << '\n';
-        const auto calcDMS = addr.toDMS();
+        const amrnet::DMS calcDMS{addr};
         if (calcDMS != coord) 
             std::cout << "\tCalculated\t" << calcDMS << '\n';
     }

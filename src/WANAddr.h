@@ -13,7 +13,7 @@ public:
         : a{(NE ? 1.0 : -1.0) * (
         (milliseconds / 3600000.0) +
         (seconds / 3600.0) + 
-        (minutes /60.0) + 
+        (minutes / 60.0) + 
         degrees
         )}
     {}
@@ -27,29 +27,6 @@ public:
     static constexpr myfloat epsilon{1.0 / 0x20'0000};
 private:
     myfloat a;
-};
-
-class WANAddr;
-
-class DMS {
-public:
-    constexpr DMS(Coord a, Coord b, uint8_t color) 
-        : latitude{a}
-        , longitude{b}
-        , color{color}
-    {}
-    WANAddr asWANAddr() const;
-    friend std::ostream& operator<<(std::ostream& out, const DMS& dms);
-    friend bool operator==(const DMS& lhs, const DMS& rhs);
-    constexpr Coord getLat() const { return latitude; }
-    constexpr Coord getLong() const { return longitude; }
-    static constexpr myfloat invanglefactor{-180.0 / 0x20'0000};
-private:
-    static constexpr myfloat anglefactor{0x20'0001 / 180.0};
-
-    Coord latitude;
-    Coord longitude;
-    uint8_t color;
 };
 
 /*
@@ -74,6 +51,10 @@ private:
  * Latitude and longitude are scaled such that a full scale 
  * 180 degree value is 0x20'0000 (i.e. 21 bits)
  *
+ * range of latitude is [-90, +90]
+ * range of longitude is [-180, +180]
+ * range of color = [0, 32)
+ *
  * Color is used to distinguish multiple nodes at the same location.
  * 
  */
@@ -84,7 +65,7 @@ struct WANAddr : public std::array<uint8_t, 6> {
         constexpr std::size_t discardbits{11};
         constexpr uint32_t mask{1U << 20};
         const auto [mylat, South] = extract(startbyte, discardbits, mask);
-        return Coord{(myfloat)(mylat * DMS::invanglefactor + (South ? 0 : 90))};
+        return Coord{(myfloat)(mylat * invanglefactor + (South ? 0 : 90))};
     }
 
     constexpr Coord getLong() const {
@@ -92,14 +73,11 @@ struct WANAddr : public std::array<uint8_t, 6> {
         constexpr std::size_t discardbits{5};
         constexpr uint32_t mask{1U << 21};
         const auto [mylong, West] = extract(startbyte, discardbits, mask);
-        return Coord{(myfloat)(mylong * -DMS::invanglefactor + (West ? -180 : 0))};
+        return Coord{(myfloat)(mylong * -invanglefactor + (West ? -180 : 0))};
     }
 
     constexpr uint8_t getColor() const {
         return back() & colormask;
-    }
-    constexpr DMS toDMS() const {
-        return {getLat(), getLong(), getColor()};
     }
 
     constexpr std::pair<uint32_t, bool> extract(std::size_t startbyte, std::size_t discardbits, uint32_t mask) const {
@@ -117,13 +95,56 @@ struct WANAddr : public std::array<uint8_t, 6> {
         return {mylat, South};
     }
     static constexpr uint8_t colormask = 0x1fu;
+    static constexpr myfloat invanglefactor{-180.0 / 0x20'0000};
+};
+
+class DMS {
+public:
+    constexpr DMS(Coord a, Coord b, uint8_t color) 
+        : latitude{a}
+        , longitude{b}
+        , color{color}
+    {}
+    constexpr DMS(const WANAddr& addr) 
+        : latitude{addr.getLat()}
+        , longitude{addr.getLong()}
+        , color{addr.getColor()}
+    {}
+    constexpr WANAddr asWANAddr() const {
+        WANAddr addr{0, 0, 0, 0, 0, static_cast<uint8_t>(color & WANAddr::colormask)};
+        uint32_t enc_lat = ((latitude.toFloat() < 0 ? 0.0 : 90.0) - latitude.toFloat()) * anglefactor;
+        uint32_t enc_long = ((longitude.toFloat() < 0 ? 180.0 : 0.0) + longitude.toFloat()) * anglefactor;
+        addr[5] |= static_cast<uint8_t>((enc_long << 5) & 0xff);  // insert low three bits
+        addr[4] |= static_cast<uint8_t>((enc_long >> 3) & 0xff);  // next 8 bits
+        addr[3] |= static_cast<uint8_t>((enc_long >> 11) & 0xff);  // next 8 bits
+        addr[2] |= static_cast<uint8_t>((enc_long >> 19) & 0xff);  // next 8 bits
+        if (longitude.toFloat() < 0) 
+            addr[2] |= 0x4;
+        addr[2] |= static_cast<uint8_t>((enc_lat << 3) & 0xff);  // insert low 5 bits
+        addr[1] |= static_cast<uint8_t>((enc_lat >> 5) & 0xff);  // insert next 8 bits
+        addr[0] |= static_cast<uint8_t>((enc_lat >> 13) & 0xff);  // insert next 8 bits
+        if (latitude.toFloat() < 0) 
+            addr[0] |= 0x80;
+
+        return addr;
+    }
+    friend std::ostream& operator<<(std::ostream& out, const DMS& dms);
+    friend constexpr bool operator==(const DMS& lhs, const DMS& rhs);
+    constexpr Coord getLat() const { return latitude; }
+    constexpr Coord getLong() const { return longitude; }
+private:
+    static constexpr myfloat anglefactor{0x20'0001 / 180.0};
+
+    Coord latitude;
+    Coord longitude;
+    uint8_t color;
 };
 
 inline constexpr bool operator==(const Coord& lhs, const Coord& rhs) { 
     return (lhs.toFloat() - rhs.toFloat()) < Coord::epsilon;
 }
 
-inline bool operator==(const DMS& lhs, const DMS& rhs){ 
+inline constexpr bool operator==(const DMS& lhs, const DMS& rhs){ 
     return lhs.latitude == rhs.latitude 
         && lhs.longitude == rhs.longitude
         && lhs.color == rhs.color;
