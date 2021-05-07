@@ -1,4 +1,4 @@
-# Introduction {#mainpage} #
+# Introduction #
 Beginning in the late 1980s and continuing to today, some Automatic Meter Reading (AMR) systems employed a geographic routing scheme to route RF communications packets through a mesh network.  Some systems used an encoding of the latitude and longitude as their Wide Area Network (WAN) address.  This C++17 library performs the encoding and decoding functions for this type of address.
 
 # Purpose
@@ -43,7 +43,7 @@ fe:80:70:0e:8e:00
 -88.9465, 2.55844
 ```
 
-# How to build this software {#building} #
+# How to build this software #
 
 For those used to [CMake](https://cmake.org/cmake/help/latest/guide/tutorial/index.html) projects, this will be a very familiar process.  Once you have the source code in a main directory, `gpsdecode` create a `build` directory under that and navigate to it.
 
@@ -68,9 +68,9 @@ You must build the software before building the tests because the tests rely on 
 
 Assuming you have followed these instruction exactly, and have run all of these build targets in that order, the library and the example application are in `build/src`, the tests are in `build/test` and the documentation in HTML and PDF format is in `build/doc/html` (start with `index.html` located there) and `build/doc/latex` (as `refman.pdf`).
 
-# How to use this software {#using} #
+# How to use this software #
 
-If you have followed the instructions for [How to build this software](@ref building), then you will have the sample executable file in `build/src/gpsdecode`.  By itself, it is not particularly useful except as an illustration.  
+If you have followed the instructions for [How to build this software](#how-to-build-this-software), then you will have the sample executable file in `build/src/gpsdecode`.  By itself, it is not particularly useful except as an illustration.  
 
 If you wish to use the library in your own software, you can copy the library (named `build/src/libCoord.a` under Linux) and the header file `src/WANAddr.h` to your project and use them directly.  Note that these locations are all *relative* paths with respect to the root directory for the project, typically named `gpsdecode`.  
 
