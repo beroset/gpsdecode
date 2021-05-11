@@ -43,6 +43,21 @@ fe:80:70:0e:8e:00
 -88.9465, 2.55844
 ```
 
+### Data structure
+
+The WAN Address is a 48-bit quantity, encoded as follows:
+
+                   4                   3                   2                   1  
+     7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |S|                Latitude               |W|                  Longitude              |  Color  | 
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+ - The `S` bit is 1 if the latitude is South, 0 for North
+ - The `W` bit is 1 if the longitude is West, 0 for East
+
+Latitude and longitude are scaled such that a full scale, a 180 degree value is 0x20'0000 (i.e. 21 bits).  The range of latitude is [-90, +90], the range of longitude is [-180, +180].  Because the range of latitude is half that of longitude (and half of full scale) we can use only 20 bits to encode it with no loss of precision.  Color is used to distinguish multiple nodes at the same location and its range is [0, 31].
+
 # How to build this software #
 
 For those used to [CMake](https://cmake.org/cmake/help/latest/guide/tutorial/index.html) projects, this will be a very familiar process.  Once you have the source code in a main directory, `gpsdecode` create a `build` directory under that and navigate to it.
