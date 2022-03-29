@@ -56,7 +56,48 @@ The WAN Address is a 48-bit quantity, encoded as follows:
  - The `S` bit is 1 if the latitude is South, 0 for North
  - The `W` bit is 1 if the longitude is West, 0 for East
 
-Latitude and longitude are scaled such that a full scale, a 180 degree value is 0x20'0000 (i.e. 21 bits).  The range of latitude is [-90, +90], the range of longitude is [-180, +180].  Because the range of latitude is half that of longitude (and half of full scale) we can use only 20 bits to encode it with no loss of precision.  Color is used to distinguish multiple nodes at the same location and its range is [0, 31].
+Latitude and longitude are scaled such that at full scale, a 90 degree value is 2^21 = 1048576.  If we call this value `k = 90/1048576`, the equation for longitude from its 21-bit value `x` is: `180 - k*x` and the value for latitude for its 20-bit value `x` is `90 - k*x`.
+
+Because the range for latitude is (-90,+90) and the range for longitude is (-180,+180), or in other words, the range for latitude is half that of longitude, we can use one fewer bits to encode latitude.  This is the reason that latitude uses 20 bits while longitude uses 21.  Color is used to distinguish multiple nodes at the same location and its range is [0, 31].
+
+#### Manual decoding example
+
+To further illustrate how this works, we'll take an arbitrary example and show how decoding is done.   The data that we'll be decoding is `42:cb:be:0e:55:e5`.  In binary that is `0100 0010 1100 1011 1011 1110 0000 1110 0101 0101 1110 0101`.  So if we show that with the previous diagram , it looks like this:
+
+                   4                   3                   2                   1  
+     7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |S|                Latitude               |W|                  Longitude              |  Color  | 
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     0 1 0 0 0 0 1 0 1 1 0 0 1 0 1 1 1 0 1 1 1 1 1 0 0 0 0 0 1 1 1 0 0 1 0 1 0 1 0 1 1 1 1 0 0 1 0 1
+     0         10000101100101110111            1          100000111001010101111              00101
+
+So picking out the individual fields, we can interpret each one as unsigned integer value, so:
+
+| Field     | Binary                | Hexadecimal | Decimal |
+|:---------:|----------------------:|------------:|--------:|
+| S         |                     0 |         0x0 |       0 |
+| Latitude  |  10000101100101110111 |     0x85977 |  547191 |
+| W         |                     1 |         0x1 |       1 | 
+| Longitude | 100000111001010101111 |    0x1072af | 1077935 |
+| Color     |                 00101 |         0x5 |       5 |
+
+We can convert the latitude and the longitude using very similar equations.  Starting with the latitude, we have:
+
+```
+90 - ( 547191 * 90 / 1048576 ) = 43.0342197418
+```
+
+Because the S bit is not set, it's a northern latitude, so the latitude = 43.0342 N, or +43.0342 to use the conventional notation of positive numbers for northern latitudes.
+
+For the longitude, the calculation uses the same process:
+
+```
+180 - ( 1077935 * 90 / 1048576 ) = 87.480096817
+```
+Because the W bit is set, it's a western longitude, so this is 87.4801 W, or -87.4801 to use the conventional notation of negative numbers for western longitudes.
+
+The Color value is set to 5 in this example. This is how we would differentiate it among up to 32 devices installed at the same location.
 
 # How to build this software #
 
