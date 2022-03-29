@@ -56,7 +56,7 @@ The WAN Address is a 48-bit quantity, encoded as follows:
  - The `S` bit is 1 if the latitude is South, 0 for North
  - The `W` bit is 1 if the longitude is West, 0 for East
 
-Latitude and longitude are scaled such that at full scale, a 90 degree value is 2^21 = 1048576.  If we call this value `k = 90/1048576`, the equation for longitude from its 21-bit value `x` is: `180 - k*x` and the value for latitude for its 20-bit value `x` is `90 - k*x`.
+Latitude and longitude are scaled such that a 90 degree value is 2^21 = 1048576.  If we call this value `k = 90/1048576`, the equation for longitude from its 21-bit value `x` is: `180 - k*x` and the value for latitude for its 20-bit value `x` is `90 - k*x`.
 
 Because the range for latitude is (-90,+90) and the range for longitude is (-180,+180), or in other words, the range for latitude is half that of longitude, we can use one fewer bits to encode latitude.  This is the reason that latitude uses 20 bits while longitude uses 21.  Color is used to distinguish multiple nodes at the same location and its range is [0, 31].
 
